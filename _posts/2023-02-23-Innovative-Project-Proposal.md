@@ -9,12 +9,11 @@ tags: [jekyll, ai]
 This homework is to specify a Future Home application and describe the key features, list all Design Considerations and the required technologies, then draw the System Block Diagram.
 
 ---
-## Test Youtube
-<iframe width="1280" height="720" src="https://www.youtube.com/embed/rAP3AyPRZ_k" title="【Joeman】很貴但超美的電競螢幕！三星Odyssey OLED G8 2023開箱" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-
 ## Test Picture
 ![](https://github.com/Ming5980/MCU-porject/blob/main/images/Perlin_noise_example.png?raw=true)
-## Futre Home Applications
+
+## Test Youtube
+<iframe width="1280" height="720" src="https://www.youtube.com/embed/rAP3AyPRZ_k" title="【Joeman】很貴但超美的電競螢幕！三星Odyssey OLED G8 2023開箱" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 
 **Service Robots:**<br>
