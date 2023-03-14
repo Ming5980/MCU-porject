@@ -9,18 +9,7 @@ tags: [jekyll, ai]
 This homework is to specify a Future Home application and describe the key features, list all Design Considerations and the required technologies, then draw the System Block Diagram.
 
 ---
-## Test Picture
-![](https://github.com/Ming5980/MCU-porject/blob/main/images/Perlin_noise_example.png?raw=true)
 
-## Test Youtube
-<iframe width="1280" height="720" src="https://www.youtube.com/embed/rAP3AyPRZ_k" title="【Joeman】很貴但超美的電競螢幕！三星Odyssey OLED G8 2023開箱" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-
-
-**Service Robots:**<br>
-
-![](https://github.com/rkuo2000/MCU-course/blob/main/images/Future_Home_robots.png?raw=true)
-
----
 
 ### Homework Report
 **Contents:**<br>
@@ -33,27 +22,27 @@ This homework is to specify a Future Home application and describe the key featu
   - Draw a System Block Diagram
 
 ---
-## 機器人(未定)???
+## 寵物機器人
 ### 應用功能說明
-1. 居家監控：外出時可隨時查看家裡各處狀況
-2. 環境監測：溫濕度感測+瓦斯偵測+空氣品質偵測 
-3. 清潔環境：撢灰塵, 除臭
-4. 丟棄垃圾：丟棄小型垃圾袋至垃圾車或社區資源回收區
-5. 餐飲服務：遞送調味料, 可樂, 水果, 零食
+1. 定時餵食：設定時間，在吃飯時間投放飼料
+2. 供給飲水：飲水快要喝完時，適時補充水
+3. 陪玩功能：能投擲、撿拾球或玩具
+4. 健康檢測：當寵物狀況或行為異常時，通知飼主
 
 ### 設計考量與相關技術
 **系統設計考量：**<br>
-1. 移動方式:共軸雙旋翼
+1. 移動方式:滾輪
 2. 供電方式:電池＋自動充電
 3. 聯網方式: WiFi 或 BLE to中控電腦
+4. 垂直升降式手臂
+5. 食物槽、水槽
+6. 發射器
 
 **所需相關技術：**
-1. 飛行姿態偵測與控制: ESP32 + MPU6050 + PID controller
-2. 溫濕度感測 & 氣體偵測: HTU21D + MQ2 + MQ7 + MQ135
-3. 紅外線遙控: IR-LED 
-4. 影像傳輸: ESP32-CAM模組
-5. 物品夾具：懸吊掛勾, 磁鐵吸吊
-6. 服務器: 具AI加速(GPU)
+1. 滑軌式機器手臂 ＆ 軟式夾具
+2. 影像傳輸: ESP32-CAM模組
+3. 影像辨識: Jetson Nano + IMX219(攝影頭)
+4. 服務器: 具AI加速(GPU)
   - 影像物件偵測辨識: CSL-YOLO
   - 任務規劃控制: Mission Planner with Floorplan
 
