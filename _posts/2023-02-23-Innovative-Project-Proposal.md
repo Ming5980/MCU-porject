@@ -47,7 +47,7 @@ This homework is to specify a Future Home application and describe the key featu
   - 任務規劃控制: Mission Planner with Floorplan
 
 ### 系統方塊圖
-![](https://github.com/Ming5980/MCU-course/blob/main/images/Innovative-proposal_block_diagram?raw=true)
+![](https://github.com/Ming5980/MCU-porject/tree/main/images/Innovative-proposal_block_diagram?raw=true)
 
 
 <br>
