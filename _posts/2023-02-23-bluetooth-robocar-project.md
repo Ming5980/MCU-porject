@@ -10,7 +10,7 @@ This project is to implement a bluetooth remote controlled robotcar.
 
 ---
 ## 藍牙遙控機器人
-![](https://github.com/rkuo2023/MCU-project/blob/main/images/ESP32_RoboCar.jpg?raw=true)
+
 
 
 ### 應用功能說明
@@ -24,11 +24,11 @@ This project is to implement a bluetooth remote controlled robotcar.
 3. 供電方式:鋰電池 3.7V x2
 4. 聯網方式:藍牙
 
-**所需相關技術：**
+**所需相關技術：**<br>
 1. MIT App Inventor 2 手機程式設計 
 2. Arduino程式設計
 
-**所需相關套件:**
+**所需相關套件:**,<br>
 
 ![](https://github.com/Ming5980/MCU-porject/blob/main/images/robocar_parts.jpg?raw=true)
 
@@ -36,7 +36,11 @@ This project is to implement a bluetooth remote controlled robotcar.
 ![](https://github.com/cliffordchen0728/MCU-course-project/blob/main/images/%E7%B3%BB%E7%B5%B1%E5%B0%8F%E6%96%B9%E6%96%B9.png)?raw=true)
 ### 手機藍牙遙控, 或WebUI 遙控(利用手機熱點WiFi連線)
 <iframe width="473" height="841" src="https://www.youtube.com/embed/-103wnKGT5g" title="2023年4月20日" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-
+### 程式碼
+![](https://github.com/Ming5980/MCU-porject/blob/main/images/code1.png?raw=true)
+![](https://github.com/Ming5980/MCU-porject/blob/main/images/code2.png?raw=true)
+![](https://github.com/Ming5980/MCU-porject/blob/main/images/code3.png?raw=true)
+![](https://github.com/Ming5980/MCU-porject/blob/main/images/code4.png?raw=true)
 ##程式碼
 #include <WiFi.h>
 #include <WebServer.h>
