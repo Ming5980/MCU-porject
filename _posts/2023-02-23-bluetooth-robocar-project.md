@@ -29,6 +29,7 @@ This project is to implement a bluetooth remote controlled robotcar.
 2. Arduino程式設計
 
 **所需相關套件:**
+
 ![](https://github.com/Ming5980/MCU-porject/blob/main/images/robocar_parts.jpg?raw=true)
 
 ### 系統方塊圖
