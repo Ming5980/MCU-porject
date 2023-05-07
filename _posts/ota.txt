@@ -1,0 +1,21 @@
+---
+layout: post
+title: OTA
+author: [Ming Lee]
+category: [project]
+tags: [robocar, bluetooth]
+---
+
+ESP32 OTA
+
+---
+
+![](https://github.com/Ming5980/MCU-porject/blob/main/images/robocar_parts.jpg?raw=true)
+
+
+
+<br>
+<br>
+
+*This site was last updated {{ site.time | date: "%B %d, %Y" }}.*
+
