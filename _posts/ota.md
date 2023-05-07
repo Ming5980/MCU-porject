@@ -10,7 +10,7 @@ ESP32 OTA
 
 ---
 
-![](https://youtube.com/shorts/UDe8FL3kPK8)
+![](<iframe width="362" height="644" src="https://www.youtube.com/embed/UDe8FL3kPK8" title="OTA" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>8)
 
 
 
