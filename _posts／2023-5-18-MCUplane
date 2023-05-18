@@ -1,0 +1,17 @@
+---
+layout: post
+title: MCU plane
+author: [Ming Lee]
+category: [project]
+---
+
+MCU plane
+
+---
+
+<iframe width="362" height="644" src="https://www.youtube.com/embed/ZSbmCyHd93Q" title="MCU　ｐｌａｎｅ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+<br>
+<br>
+
+*This site was last updated {{ site.time | date: "%B %d, %Y" }}.*
