@@ -6,14 +6,14 @@ category: [project]
 
 ---
 
-dHT11 ThingSpeak
+DHT11 ThingSpeak
 
 ---
 
 ![](https://github.com/Ming5980/MCU-porject/blob/main/images/thingspeak.jpg?raw=true)
 
 ---
-<br>Code<br/>
+## Code
 
 ![](https://github.com/Ming5980/MCU-porject/blob/main/images/thingspeak_code1.jpg?raw=true)
 
