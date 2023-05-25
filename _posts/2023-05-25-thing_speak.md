@@ -25,4 +25,8 @@ DHT11 ThingSpeak
 
 ---
 
+## Block Diagram
+
+![](https://github.com/Ming5980/MCU-porject/blob/main/images/thingspeak_bd.jpg?raw=true)
+
 *This site was last updated {{ site.time | date: "%B %d, %Y" }}.*
