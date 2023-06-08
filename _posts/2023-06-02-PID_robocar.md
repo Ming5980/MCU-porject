@@ -7,10 +7,10 @@ tags: [robocar, bluetooth]
 ---
 
 PID_robocar
-<iframe width="362" height="644" src="https://www.youtube.com/embed/_meWFG7CKT8" title="PID_robocar" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 ---
 
-<iframe width="473" height="841" src="https://www.youtube.com/embed/-103wnKGT5g" title="2023年4月20日" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<iframe width="362" height="644" src="https://www.youtube.com/embed/OJ-0g2eOb7g" title="PID Robocar" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 ---
 <br>
@@ -25,12 +25,14 @@ PID_robocar
 // RoboCar with MPU6050 using PID control for going straight line
 // by Richard Kuo, NTOU/EE
 //
+#include <WiFi.h>
 #include <Wire.h>
-#include <ESP32MotorControl.h> 
 #include <MPU6050_6Axis_MotionApps20.h>
+#include <WebServer.h>
+#include <ESP32MotorControl.h>
+#include <time.h>
+#include <math.h>
 
-
-// MPU6050 : Inertial Measurement Unit
 MPU6050 mpu;
 //MPU6050 mpu(0x69); // <-- use for AD0 high
 
@@ -57,8 +59,7 @@ uint8_t teapotPacket[14] = { '$', 0x02, 0,0, 0,0, 0,0, 0,0, 0x00, 0x00, '\r', '\
 static float  preHeading, Heading, HeadingTgt;
 
 // PID tuning method : Ziegler-Nichols method
-//const int Ku = 10;
-const int Ku = 2;
+const int Ku = 10;
 const int Tu = 100;
 const int Kp = 0.6 * Ku;
 const int Ki = 1.2 * Ku / Tu;
@@ -66,7 +67,7 @@ const int Kd = 3 * Ku * Tu /40;
 
 // PWM freq : NodeMCU = 1KHz, UNO = 500Hz
 // PWM duty   NodeMCU = 1023 (10-bit PWM), UNO = 255 (8-bit PWM)
-#define PWM_FULLPOWER  50  //speed = 100
+#define PWM_FULLPOWER  50
 int USR_FullPower;
 int USR_MotorPower;
 int PID_FullPower;
@@ -81,22 +82,37 @@ int command;
 int angle;
     
 
-#define AIN1 16
-#define AIN2 17
-#define BIN1 18
-#define BIN2 19
-
+#define IN1pin 16  
+#define IN2pin 17 
+#define IN3pin 18 
+#define IN4pin 19
 #define motorR 0
 #define motorL 1
-
 ESP32MotorControl motor;
+const char *ssid = "Ming";
+const char *password = "98765432";
 
-// value 1 or -1 for motor spining default
-const int offsetA = 1;
-const int offsetB = 1;
-//motor.attachMotors(AIN1, AIN2, BIN1, BIN2);  不能放在外面
-//Motor motorR = Motor(AIN1, AIN2, PWMA, offsetA, STBY);
-//Motor motorL = Motor(BIN1, BIN2, PWMB, offsetB, STBY);
+WebServer server(80); // Set web server port number to 80
+
+const String HTTP_PAGE_HEAD = "<!DOCTYPE html><html lang=\"en\"><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=no\"/><title>{v}</title>";
+const String HTTP_PAGE_STYLE = "<style>.c{text-align: center;} div,input{padding:5px;font-size:1em;}  input{width:90%;}  body{text-align: center;font-family:verdana;} button{border:0;border-radius:0.6rem;background-color:#1fb3ec;color:#fdd;line-height:2.4rem;font-size:1.2rem;width:100%;} .q{float: right;width: 64px;text-align: right;} .button1 {background-color: #4CAF50;} .button2 {background-color: #008CBA;} .button3 {background-color: #f44336;} .button4 {background-color: #e7e7e7; color: black;} .button5 {background-color: #555555;} </style>";
+const String HTTP_PAGE_SCRIPT = "<script>function c(l){document.getElementById('s').value=l.innerText||l.textContent;document.getElementById('p').focus();}</script>";
+const String HTTP_PAGE_BODY= "</head><body><div style='text-align:left;display:inline-block;min-width:260px;'>";
+const String HTTP_PAGE_FORM = "<form action=\"/cmd1\" method=\"get\"><button class=\"button1\">Forward</button></form></br><form action=\"/cmd2\" method=\"get\"><button class=\"button2\">Backward</button></form></br><form action=\"/cmd3\" method=\"get\"><button class=\"button3\">Right</button></form></br><form action=\"/cmd4\" method=\"get\"><button class=\"button4\">Left</button></form></br><form action=\"/cmd5\" method=\"get\"><button class=\"button5\">Stop</button></form></br></div>";
+const String HTTP_WEBPAGE = HTTP_PAGE_HEAD + HTTP_PAGE_STYLE + HTTP_PAGE_SCRIPT + HTTP_PAGE_BODY + HTTP_PAGE_FORM;
+const String HTTP_PAGE_END = "</div></body></html>";
+
+unsigned long currentTime = millis();
+// Previous time
+unsigned long previousTime = 0; 
+// Define timeout time in milliseconds (example: 2000ms = 2s)
+const long timeoutTime = 2000;
+
+void handleRoot() {
+  String s  = HTTP_WEBPAGE; 
+  s += HTTP_PAGE_END;
+  server.send(200, "text/html", s);
+}
 
 // Interrup Service Routine (ISR)
 volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
@@ -107,13 +123,46 @@ void dmpDataReady() {
 void setup() {  
   Wire.begin();
   Wire.setClock(400000);
-  //mpu.setRate(9);
     
   Serial.begin(115200);
   Serial.println("NodeMCU RoboCar with IMU");
+  Serial.println("Motor Pins assigned...");
+  motor.attachMotors(IN1pin, IN2pin, IN3pin, IN4pin);
   
-  motor.attachMotors(AIN1, AIN2, BIN1, BIN2);
+  // Connect to Wi-Fi network with SSID and password
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  
 
+  Serial.println("");
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  server.on("/", handleRoot);
+  server.on("/cmd1", cmd1);
+  server.on("/cmd2", cmd2);
+  server.on("/cmd3", cmd3);
+  server.on("/cmd4", cmd4);
+
+  server.on("/", handleRoot);
+  server.on("/cmd1", cmd1);
+  server.on("/cmd2", cmd2);
+  server.on("/cmd3", cmd3);
+  server.on("/cmd4", cmd4);  
+  server.on("/cmd5", cmd5);  
+
+  Serial.println("HTTP server started");
+  server.begin();
+  
+  motor.motorStop(motorR);
+  motor.motorStop(motorL);
+  
   mpu.initialize();
   devStatus = mpu.dmpInitialize();
   
@@ -180,7 +229,7 @@ void setup() {
   command = CMD_FORWARD; // CMD_RIGHT
   angle = 0;             // +60
 
-  switch(command) {
+ /* switch(command) {
     case CMD_STOP:
       USR_FullPower = 0;
       PID_FullPower = 0;
@@ -188,24 +237,32 @@ void setup() {
     case CMD_FORWARD:
       USR_FullPower = PWM_FULLPOWER * 3/4;
       PID_FullPower = PWM_FULLPOWER - USR_FullPower;
+      
       break;
     case CMD_BACKWARD:
       USR_FullPower = PWM_FULLPOWER * 3/4;
       PID_FullPower = PWM_FULLPOWER - USR_FullPower;
+      
       break;
     case CMD_RIGHT:
       USR_FullPower = PWM_FULLPOWER * 1/4;
       PID_FullPower = PWM_FULLPOWER - USR_FullPower;
+      speed_rightR = USR_MotorPower - PID_MotorPower;
+      speed_rightL = -USR_MotorPower + PID_MotorPower;
       break;
     case CMD_LEFT:
       USR_FullPower = PWM_FULLPOWER * 1/4;
       PID_FullPower = PWM_FULLPOWER - USR_FullPower;
+      speed_leftR = -USR_MotorPower + PID_MotorPower;
+      speed_leftL = USR_MotorPower - PID_MotorPower;
       break;
+    
     default:
       USR_FullPower = 0;
       PID_FullPower = 0;    
       break;
-  }
+  }*/
+  
 
 
   // set target heading to default heading
@@ -217,7 +274,8 @@ void setup() {
   Serial.println(HeadingTgt);
 }
 
-void loop() { 
+void loop() {
+  server.handleClient(); 
   const int Moving = 1; 
   
   if (!dmpReady) return;
@@ -242,46 +300,133 @@ void loop() {
   Serial.println(PID_MotorPower);
   
   if (Heading==HeadingTgt) PID_MotorPower = 0;
-  switch (command) {
-    //motor.motorForward(motorR, Speed);  
-    //motor.motorForward(motorL, Speed);
+  
+ /* switch (command) {
     case CMD_STOP:
-      motor.motorForward(motorR, USR_MotorPower - PID_MotorPower);
-      motor.motorForward(motorL, USR_MotorPower + PID_MotorPower);
-      //motorR.drive(USR_MotorPower - PID_MotorPower);
-      //motorL.drive(USR_MotorPower + PID_MotorPower);
+      String s  = HTTP_WEBPAGE; 
+      s += HTTP_PAGE_END;  
+      server.send(200, "text/html", s);
+      motor.motorStop(motorR);
+      motor.motorStop(motorL);
+      
+      Serial.println("Motor Stop");
       break;
     case CMD_FORWARD:
-      motor.motorForward(motorR, USR_MotorPower - PID_MotorPower);
+      String s  = HTTP_WEBPAGE; 
+      s += HTTP_PAGE_END;  
+      server.send(200, "text/html", s);
+      motor.motorForward(motorR, USR_MotorPower - PID_MotorPower);  
       motor.motorForward(motorL, USR_MotorPower + PID_MotorPower);
-      //motorR.drive(USR_MotorPower - PID_MotorPower);
-      //motorL.drive(USR_MotorPower + PID_MotorPower);
+      
+      Serial.println("Move Forward");
       break;
     case CMD_BACKWARD:
-      motor.motorForward(motorR, -USR_MotorPower - PID_MotorPower);
-      motor.motorForward(motorL, -USR_MotorPower + PID_MotorPower);
-      //motorR.drive(-USR_MotorPower - PID_MotorPower);
-      //motorL.drive(-USR_MotorPower + PID_MotorPower);
+      String s  = HTTP_WEBPAGE; 
+      s += HTTP_PAGE_END;  
+      server.send(200, "text/html", s);
+      motor.motorReverse(motorR, -USR_MotorPower - PID_MotorPower);
+      motor.motorReverse(motorL, -USR_MotorPower + PID_MotorPower);
+      
+      Serial.println("Move Backward");
       break;
     case CMD_RIGHT:
-      motor.motorForward(motorR, USR_MotorPower - PID_MotorPower);
+      String s  = HTTP_WEBPAGE; 
+      s += HTTP_PAGE_END;  
+      server.send(200, "text/html", s);
+      motor.motorReverse(motorR, USR_MotorPower - PID_MotorPower);  
       motor.motorForward(motorL, -USR_MotorPower + PID_MotorPower);
-      //motorR.drive( USR_MotorPower - PID_MotorPower);
-      //motorL.drive(-USR_MotorPower + PID_MotorPower);
+      
+      Serial.println("Turn Right");
       break;
     case CMD_LEFT:
+      String s  = HTTP_WEBPAGE; 
+      s += HTTP_PAGE_END;  
+      server.send(200, "text/html", s);
       motor.motorForward(motorR, -USR_MotorPower + PID_MotorPower);
-      motor.motorForward(motorL, USR_MotorPower - PID_MotorPower);
-      //motorR.drive(-USR_MotorPower + PID_MotorPower);
-      //motorL.drive( USR_MotorPower - PID_MotorPower);
+      motor.motorReverse(motorL, USR_MotorPower - PID_MotorPower);
+      
+      Serial.println("Turn Left"); 
       break;
     default:
-      motor.motorForward(motorR, USR_MotorPower - PID_MotorPower);
+      motor.motorForward(motorR, USR_MotorPower - PID_MotorPower);  
       motor.motorForward(motorL, USR_MotorPower + PID_MotorPower);
-      //motorR.drive(USR_FullPower - PID_MotorPower);
-      //motorL.drive(USR_FullPower + PID_MotorPower);
       break;
+  }*/
+}
+void cmd1() {
+  String s  = HTTP_WEBPAGE;
+  s += HTTP_PAGE_END;
+  
+  
+  for(int i = 1; i<100; i++){
+    unsigned long now = millis() * 1000;
+    int speedR = 37+13*sin(now);
+    int speedL = 37+13*sin(now-M_PI/2);
+    motor.motorForward(motorR, speedR);
+    motor.motorForward(motorL, speedL);
+    sleep(0.1);
   }
+  /*
+  USR_FullPower = PWM_FULLPOWER * 3/4;
+  PID_FullPower = PWM_FULLPOWER - USR_FullPower;
+  int speed_forwardR = USR_MotorPower - PID_MotorPower;
+  int speed_forwardL = USR_MotorPower + PID_MotorPower;
+  server.send(200, "text/html", s);
+  motor.motorForward(motorR, speed_forwardR);  
+  motor.motorForward(motorL, speed_forwardR);
+  Serial.println("Move Forward");   
+  */
+}
+
+void cmd2() {
+  String s  = HTTP_WEBPAGE; 
+  s += HTTP_PAGE_END;  
+  USR_FullPower = PWM_FULLPOWER * 3/4;
+  PID_FullPower = PWM_FULLPOWER - USR_FullPower;
+  int speed_backwardR = -USR_MotorPower - PID_MotorPower;
+  int speed_backwardL = -USR_MotorPower + PID_MotorPower;
+  server.send(200, "text/html", s);
+  motor.motorReverse(motorR, speed_backwardR);
+  motor.motorReverse(motorL, speed_backwardL);
+  Serial.println("Move Backward");     
+}
+
+void cmd3() {
+  String s  = HTTP_WEBPAGE; 
+  s += HTTP_PAGE_END;  
+  USR_FullPower = PWM_FULLPOWER * 1/4;
+  PID_FullPower = PWM_FULLPOWER - USR_FullPower;
+  int speed_rightR = USR_MotorPower - PID_MotorPower;
+  int speed_rightL = -USR_MotorPower + PID_MotorPower;
+  server.send(200, "text/html", s);
+  motor.motorReverse(motorR, speed_rightR);  
+  motor.motorForward(motorL, speed_rightL);
+  Serial.println("Turn Right");    
+}
+
+void cmd4() {
+  String s  = HTTP_WEBPAGE; 
+  s += HTTP_PAGE_END;  
+  USR_FullPower = PWM_FULLPOWER * 1/4;
+  PID_FullPower = PWM_FULLPOWER - USR_FullPower;
+  int speed_leftR = -USR_MotorPower + PID_MotorPower;
+  int speed_leftL = USR_MotorPower - PID_MotorPower;
+  server.send(200, "text/html", s);
+  motor.motorForward(motorR, speed_leftR);
+  motor.motorReverse(motorL, speed_leftL);
+  Serial.println("Turn Left"); 
+}
+
+void cmd5() {
+  String s  = HTTP_WEBPAGE; 
+  s += HTTP_PAGE_END;  
+  USR_FullPower = 0;
+  PID_FullPower = 0;
+  
+  server.send(200, "text/html", s);
+  motor.motorStop(motorR);
+  motor.motorStop(motorL);
+  Serial.println("Motor Stop");
 }
 
 void  GetHeading(float *Heading)                                                                                                                                                   
